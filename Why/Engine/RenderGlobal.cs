@@ -8,7 +8,6 @@ namespace Why.Engine
         private static readonly Shader john = new("Resource/Shader/john.vert", "Resource/Shader/john.frag");
 
         public static readonly Mesh mesh = new(Mesh.DrawMode.triangle, john, Vao.Attrib.float3, Vao.Attrib.float4);
-        public static readonly Texture fuji = Texture.loadFromFile("Resource/Texture/Texture.png");
         public static Matrix4 projection;
 
         public static void updateProjection()
