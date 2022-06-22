@@ -1,6 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System.Drawing;
 using System.Drawing.Imaging;
+using OpenTK.Mathematics;
 
 namespace Why.Engine
 {
@@ -9,10 +10,11 @@ namespace Why.Engine
     {
 
         private static int _active;
+        private static readonly Dictionary<int, Texture> _textures = new();
         private readonly int _handle;
 
-        public readonly float invWidth;
-        public readonly float invHeight;
+        public readonly float width;
+        public readonly float height;
 
         public static Texture loadFromFile(string path)
         {
@@ -23,8 +25,6 @@ namespace Why.Engine
             
 #pragma warning disable CA1416
             using var image = new Bitmap(path);
-
-            image.RotateFlip(RotateFlipType.RotateNoneFlipY);
             
             var data = image.LockBits(
                 new Rectangle(0, 0, image.Width, image.Height),
@@ -42,7 +42,7 @@ namespace Why.Engine
                 data.Scan0);
 
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.NearestMipmapNearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
             
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
@@ -56,8 +56,9 @@ namespace Why.Engine
         private Texture(int glHandle, int width, int height)
         {
             _handle = glHandle;
-            invWidth = 1.0f / width;
-            invHeight = 1.0f / height;
+            this.width = width;
+            this.height = height;
+            _textures[glHandle] = this;
         }
         
         public void bind(TextureUnit unit)
@@ -75,6 +76,16 @@ namespace Why.Engine
         {
             GL.BindTexture(TextureTarget.Texture2D, 0);
             _active = 0;
+        }
+
+        public static Vector2 currentBounds()
+        {
+            if (!_textures.ContainsKey(_active))
+            {
+                return new Vector2(1, 1);
+            }
+            var current = _textures[_active];
+            return new Vector2(current.width, current.height);
         }
     }
 }

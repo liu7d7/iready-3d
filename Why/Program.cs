@@ -1,12 +1,10 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 
 namespace Why
 {
-    public class Program
+    public static class Program
     {
         // ReSharper disable once InconsistentNaming
         [STAThread]

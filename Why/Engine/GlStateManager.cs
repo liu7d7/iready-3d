@@ -59,6 +59,7 @@ namespace Why.Engine
             {
                 _blendEnabled = true;
                 GL.Enable(EnableCap.Blend);
+                GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             }
         }
         

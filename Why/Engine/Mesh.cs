@@ -12,18 +12,13 @@ namespace Why.Engine
         private readonly Shader? _shader;
         private int _vertex;
         private int _index;
-
         private bool _building;
 
         public Mesh(DrawMode drawMode, Shader? shader, params Vao.Attrib[] attribs)
         {
             _drawMode = drawMode;
             _shader = shader;
-            var stride = 0;
-            foreach (Vao.Attrib attrib in attribs)
-            {
-                stride += (int) attrib * sizeof(float);
-            }
+            var stride = attribs.Sum(attrib => (int) attrib * sizeof(float));
             _vbo = new Vbo(stride * drawMode.size * 256 * sizeof(float));
             _vbo.bind();
             _ibo = new Ibo(drawMode.size * 512 * sizeof(float));
@@ -51,12 +46,7 @@ namespace Why.Engine
             _vbo.put(p1);
             return this;
         }
-        
-        public Mesh float2(float p0, float p1, Texture texture)
-        {
-            return float2(p0 * texture.invWidth, p1 * texture.invHeight);
-        }
-        
+
         public Mesh float3(float p0, float p1, float p2)
         {
             _vbo.put(p0);
@@ -77,6 +67,11 @@ namespace Why.Engine
         public Mesh float4(uint color)
         {
             return float4(((color >> 16) & 0xff) * 0.003921569f, ((color >> 8) & 0xff) * 0.003921569f, (color & 0xff) * 0.003921569f, ((color >> 24) & 0xff) * 0.003921569f);
+        }
+
+        public Mesh float4(uint color, float alpha)
+        {
+            return float4(((color >> 16) & 0xff) * 0.003921569f, ((color >> 8) & 0xff) * 0.003921569f, (color & 0xff) * 0.003921569f, alpha);
         }
 
         public void tri(int p0, int p1, int p2)
@@ -137,6 +132,8 @@ namespace Why.Engine
             if (_index > 0)
             {
                 GlStateManager.saveState();
+                GlStateManager.enableBlend();
+                GlStateManager.enableDepth();
                 _shader?.bind();
                 _shader?.setDefaults();
                 _vao.bind();

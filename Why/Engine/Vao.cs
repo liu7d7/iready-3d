@@ -7,21 +7,17 @@ namespace Why.Engine
         private static int _active;
         private readonly int _handle;
 
-        public Vao(params Attrib[] ptrTypes)
+        public Vao(params Attrib[] attribs)
         {
             _handle = GL.GenVertexArray();
             bind();
-            var stride = 0;
-            foreach (Attrib attrib in ptrTypes)
-            {
-                stride += (int) attrib;
-            }
+            var stride = attribs.Sum(attrib => (int) attrib);
             int offset = 0;
-            for (int i = 0; i < ptrTypes.Length; i++)
+            for (int i = 0; i < attribs.Length; i++)
             {
                 GL.EnableVertexAttribArray(i);
-                GL.VertexAttribPointer(i, (int) ptrTypes[i], VertexAttribPointerType.Float, false, stride * sizeof(float), offset);
-                offset += (int) ptrTypes[i] * sizeof(float);
+                GL.VertexAttribPointer(i, (int) attribs[i], VertexAttribPointerType.Float, false, stride * sizeof(float), offset);
+                offset += (int) attribs[i] * sizeof(float);
             }
             unbind();
         }

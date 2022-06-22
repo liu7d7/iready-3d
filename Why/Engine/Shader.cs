@@ -95,11 +95,6 @@ namespace Why.Engine
             return GL.GetAttribLocation(_handle, attribName);
         }
 
-        public void setDefaults()
-        {
-            setMatrix4("_proj", RenderGlobal.projection);
-        }
-
         /// <summary>
         /// Set a uniform int on this shader.
         /// </summary>
@@ -107,7 +102,11 @@ namespace Why.Engine
         /// <param name="data">The data to set</param>
         public void setInt(string name, int data)
         {
-            GL.UseProgram(_handle);
+            if (!_uniformLocations.ContainsKey(name))
+            {
+                return;
+            }
+            bind();
             GL.Uniform1(_uniformLocations[name], data);
         }
 
@@ -118,7 +117,11 @@ namespace Why.Engine
         /// <param name="data">The data to set</param>
         public void setFloat(string name, float data)
         {
-            GL.UseProgram(_handle);
+            if (!_uniformLocations.ContainsKey(name))
+            {
+                return;
+            }
+            bind();
             GL.Uniform1(_uniformLocations[name], data);
         }
 
@@ -134,7 +137,11 @@ namespace Why.Engine
         /// </remarks>
         public void setMatrix4(string name, Matrix4 data)
         {
-            GL.UseProgram(_handle);
+            if (!_uniformLocations.ContainsKey(name))
+            {
+                return;
+            }
+            bind();
             GL.UniformMatrix4(_uniformLocations[name], true, ref data);
         }
 
@@ -145,8 +152,27 @@ namespace Why.Engine
         /// <param name="data">The data to set</param>
         public void setVector3(string name, Vector3 data)
         {
-            GL.UseProgram(_handle);
+            if (!_uniformLocations.ContainsKey(name))
+            {
+                return;
+            }
+            bind();
             GL.Uniform3(_uniformLocations[name], data);
+        }
+
+        /// <summary>
+        /// Set a uniform Vector2 on this shader.
+        /// </summary>
+        /// <param name="name">The name of the uniform</param>
+        /// <param name="data">The data to set</param>
+        public void setVector2(string name, Vector2 data)
+        {
+            if (!_uniformLocations.ContainsKey(name))
+            {
+                return;
+            }
+            bind();
+            GL.Uniform2(_uniformLocations[name], data);
         }
     }
 }
