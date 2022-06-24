@@ -17,7 +17,7 @@ namespace Why.Game.Components
                 base.render(objIn);
                 
                 var aabb = objIn.getComponent<CollisionComponent>().bounds;
-                RenderGlobal.draw(aabb, c.texturing, c.data);
+                RenderSystem.draw(aabb, c.texturing, c.data);
             }
         }
     }

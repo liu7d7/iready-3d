@@ -14,6 +14,7 @@ namespace Why
     public class Why : GameWindow
     {
         private readonly WhyObj _player;
+        
         private readonly List<WhyObj> _tiles;
 
         public static Why instance = null!;
@@ -24,9 +25,9 @@ namespace Why
             _player = new WhyObj();
             _player.addComponent(new PlayerComponent());
             _player.addComponent(new FloatPosComponent());
-            _player.addComponent(new CubeRenderingComponent());
-            _player.getComponent<FloatPosComponent>().pitch = 90;
-            _player.getComponent<FloatPosComponent>().yaw = 90;
+            _player.addComponent(new CameraComponent());
+            _player.getComponent<FloatPosComponent>().yaw = 45;
+            _player.getComponent<FloatPosComponent>().pitch = 215;
             _tiles = new List<WhyObj>();
             for (int i = -5; i <= 5; i++)
             {
@@ -54,14 +55,14 @@ namespace Why
 
             GL.ClearColor(0.11f, 0.11f, 0.15f, 1.0f);
             GL.DepthFunc(DepthFunction.Lequal);
-            RenderGlobal.updateProjection();
+            RenderSystem.updateProjection();
         }
 
         protected override void OnResize(ResizeEventArgs e)
         {
             base.OnResize(e);
             
-            RenderGlobal.updateProjection();
+            RenderSystem.updateProjection();
             Fbo.resize(Size.X, Size.Y);
         }
 
@@ -69,23 +70,23 @@ namespace Why
         {
             base.OnRenderFrame(args);
             
-            RenderGlobal.frame.bind();
+            RenderSystem.frame.bind();
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             
-            RenderGlobal.updateLookAt(_player);
+            RenderSystem.updateLookAt(_player);
             
-            RenderGlobal.tex0.bind(TextureUnit.Texture0);
-            RenderGlobal.mesh.begin();
+            RenderSystem.tex0.bind(TextureUnit.Texture0);
+            RenderSystem.mesh.begin();
             _player.render();
             foreach (var tile in _tiles)
             {
                 tile.render();
             }
-            RenderGlobal.mesh.end();
-            RenderGlobal.mesh.render();
+            RenderSystem.mesh.end();
+            RenderSystem.mesh.render();
 
-            RenderGlobal.frame.blit();
+            RenderSystem.frame.blit();
 
             SwapBuffers();
         }

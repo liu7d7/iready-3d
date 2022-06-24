@@ -26,10 +26,10 @@ namespace Why.Game.Components
 
             if (_bounds == null)
             {
-                _bounds = new(_pos.x * 40, _pos.y * 40, 40, 40);
+                _bounds = new(_pos.x * 40, _pos.z * 40, 40, 40);
             }
             
-            RenderGlobal.draw(_bounds, _sprite);
+            RenderSystem.draw(_bounds, _sprite);
         }
     }
 }

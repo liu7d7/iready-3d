@@ -12,7 +12,7 @@ out vec4 v_Color;
 out vec2 v_TexCoords;
 
 void main() {
-    gl_Position = _proj * _lookAt * vec4(pos, 1.0);
+    gl_Position = vec4(pos, 1.0) * _lookAt * _proj;
     v_TexCoords = texCoords / _tex0Size;
     v_Color = color;
 }

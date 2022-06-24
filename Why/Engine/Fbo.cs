@@ -95,27 +95,7 @@ namespace Why.Engine
                 frame.Value._resize(width, height);
             }
         }
-
-        public void render(bool beginEnd = false)
-        {
-            if (beginEnd)
-            {
-                RenderGlobal.mesh.begin();
-            }
-
-            GL.BindTexture(TextureTarget.Texture2D, _colorAttachment);
-            int i1 = RenderGlobal.mesh.float3(-_width / 2f, -_height / 2f, 0).float2(0, 0).float4(0xffffffff).next();
-            int i2 = RenderGlobal.mesh.float3(_width / 2f, -_height / 2f, 0).float2(1, 0).float4(0xffffffff).next();
-            int i3 = RenderGlobal.mesh.float3(_width / 2f, _height / 2f, 0).float2(1, 1).float4(0xffffffff).next();
-            int i4 = RenderGlobal.mesh.float3(-_width / 2f, _height / 2f, 0).float2(0, 1).float4(0xffffffff).next();
-            RenderGlobal.mesh.quad(i1, i2, i3, i4);
-
-            if (beginEnd)
-            {
-                RenderGlobal.mesh.end();
-            }
-        }
-
+        
         public void bind()
         {
             if (_handle == _active)
@@ -125,8 +105,7 @@ namespace Why.Engine
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, _handle);
             _active = _handle;
         }
-
-        // blit to fbo 0
+        
         public void blit()
         {
             GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, _handle);

@@ -9,12 +9,13 @@ namespace Why.Game.Components
     public class PlayerComponent : WhyObj.Component
     {
 
-        private Vector2 _motion;
-        private FloatPosComponent? _component;
+        private Vector3 _motion;
+        private FloatPosComponent? _pos;
+        private CameraComponent? _camera;
         
         public PlayerComponent()
         {
-            _motion = Vector2.Zero;
+            _motion = Vector3.Zero;
         }
 
         public override void render(WhyObj objIn)
@@ -22,76 +23,91 @@ namespace Why.Game.Components
             base.render(objIn);
 
             var comp = objIn.getComponent<FloatPosComponent>();
-
-            for (int i = 3; i-- > 0;)
-            {
-                var x = comp.x - _motion.X * i * 10;
-                var z = comp.z - _motion.Y * i * 10;
-                int i1 = RenderGlobal.mesh.float3(x - 30, 0f, z - 30).float2(Sprites.grassTop.u, Sprites.grassTop.v).float4(0xffffff, (3f - i) / 3f).next();
-                int i2 = RenderGlobal.mesh.float3(x - 30, 0f, z + 30).float2(Sprites.grassTop.u, Sprites.grassTop.v + Sprites.grassTop.height).float4(0xffffff, (3f - i) / 3f).next();
-                int i3 = RenderGlobal.mesh.float3(x + 30, 0f, z + 30).float2(Sprites.grassTop.u + Sprites.grassTop.width, Sprites.grassTop.v + Sprites.grassTop.height).float4(0xffffff, (3f - i) / 3f).next();
-                int i4 = RenderGlobal.mesh.float3(x + 30, 0f, z - 30).float2(Sprites.grassTop.u + Sprites.grassTop.width, Sprites.grassTop.v).float4(0xffffff, (3f - i) / 3f).next();
-                RenderGlobal.mesh.quad(i1, i2, i3, i4);
-            }
-            // RenderGlobal.draw(new(x - 10, y - 10, z - 10, x + 10, y + 10, z + 10), CubeTexturing.grass, new CubeRenderData());
+            
+            var x = comp.x;
+            var y = comp.y;
+            var z = comp.z;
+            int i1 = RenderSystem.mesh.float3(x - 30, y, z - 30).float2(Sprites.rectangle.u, Sprites.rectangle.v).float4(0xffffffff).next();
+            int i2 = RenderSystem.mesh.float3(x - 30, y, z + 30).float2(Sprites.rectangle.u, Sprites.rectangle.v + Sprites.rectangle.height).float4(0xffffffff).next();
+            int i3 = RenderSystem.mesh.float3(x + 30, y, z + 30).float2(Sprites.rectangle.u + Sprites.rectangle.width, Sprites.rectangle.v + Sprites.rectangle.height).float4(0xffffffff).next();
+            int i4 = RenderSystem.mesh.float3(x + 30, y, z - 30).float2(Sprites.rectangle.u + Sprites.rectangle.width, Sprites.rectangle.v).float4(0xffffffff).next();
+            RenderSystem.mesh.quad(i1, i2, i3, i4);
         }
 
         public override void update(WhyObj objIn)
         {
             
-            if (_component == null)
+            if (_pos == null)
             {
-                _component = objIn.getComponent<FloatPosComponent>();
+                _pos = objIn.getComponent<FloatPosComponent>();
+            }
+            
+            if (_camera == null)
+            {
+                _camera = objIn.getComponent<CameraComponent>();
             }
             
             base.update(objIn);
             
-            float forward = 0;
-            float strafe = 0;
+            _motion = Vector3.Zero;
+            var yaw = 0.0f;
 
             var kstate = Why.instance.KeyboardState;
 
             if (kstate.IsKeyDown(Keys.W))
             {
-                forward -= 1;
+                var vec = Vector3.Cross(_camera.right, _camera.up).Normalized();
+                _motion -= vec;
             }
 
             if (kstate.IsKeyDown(Keys.S))
             {
-                forward += 1;
+                var vec = Vector3.Cross(_camera.right, _camera.up).Normalized();
+                _motion += vec;
             }
 
             if (kstate.IsKeyDown(Keys.A))
             {
-                strafe -= 1;
+                _motion -= Vector3.Cross(_camera.front, _camera.up).Normalized();
             }
 
             if (kstate.IsKeyDown(Keys.D))
             {
-                strafe += 1;
+                _motion += Vector3.Cross(_camera.front, _camera.up).Normalized();
             }
 
-            _motion = new Vector2(strafe, forward).normalizedFast();
-
-            _component.x += _motion.X;
-            _component.z += _motion.Y;
+            if (kstate.IsKeyDown(Keys.Q))
+            {
+                yaw -= 1.0f;
+            }
+            
+            if (kstate.IsKeyDown(Keys.E))
+            {
+                yaw += 1.0f;
+            }
+            
+            _pos.x += _motion.X;
+            _pos.y += _motion.Y;
+            _pos.z += _motion.Z;
+            _pos.yaw += yaw;
             
             var mstate = Why.instance.MouseState;
             
             if (kstate.IsKeyDown(Keys.LeftShift))
             {
-                _component.pitch += MathF.Sign(mstate.ScrollDelta.Y);
+                _pos.pitch += MathF.Sign(mstate.ScrollDelta.Y);
             }
             else
             {
-                _component.yaw += MathF.Sign(mstate.ScrollDelta.Y);
+                _pos.yaw += MathF.Sign(mstate.ScrollDelta.Y);
             }
-
+            
             if (kstate.IsKeyDown(Keys.R))
             {
-                _component.x = _component.y = _component.z = 0;
-                _component.pitch = _component.yaw = 90;
-                _motion = Vector2.Zero;
+                _pos.x = _pos.y = _pos.z = 0;
+                _pos.pitch = 215;
+                _pos.yaw = 45;
+                _motion = Vector3.Zero;
             }
 
         }

@@ -9,17 +9,11 @@ namespace Why.Shared.Components
         public float y;
         public float z;
         public float yaw;
-        private float _pitch;
-
-        public float pitch
-        {
-            get => _pitch;
-            set => _pitch = MathHelper.Clamp(value, -90, 90);
-        }
+        public float pitch;
 
         public FloatPosComponent()
         {
-            
+            x = y = z = yaw = pitch = 0;
         }
     }
 }

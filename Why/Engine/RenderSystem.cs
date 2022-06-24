@@ -7,7 +7,7 @@ using Why.Shared.Components;
 
 namespace Why.Engine
 {
-    public static class RenderGlobal
+    public static class RenderSystem
     {
 
         private static readonly Shader _john = new("Resource/Shader/john.vert", "Resource/Shader/john.frag");
@@ -41,11 +41,9 @@ namespace Why.Engine
             {
                 _lookAt = Matrix4.Identity;
             }
-            
-            var comp = cameraObj.getComponent<FloatPosComponent>();
-            var pos = new Vector3(0, 0, 0);
-            var front = new Vector3(MathF.Cos(comp.pitch.toRadians()) * MathF.Cos(comp.yaw.toRadians()), MathF.Sin(comp.pitch.toRadians()), MathF.Cos(comp.pitch.toRadians()) * MathF.Sin(comp.yaw.toRadians())).normalizedFast();
-            _lookAt = Matrix4.LookAt(pos, pos + front, new(0, 1, 0));
+
+            var comp = cameraObj.getComponent<CameraComponent>();
+            _lookAt = comp.getCameraMatrix();
         }
         
         public static void draw(AABB bounds, CubeTexturing texturing, CubeRenderData data, bool beginEnd = false)
@@ -69,42 +67,42 @@ namespace Why.Engine
             var back = texturing.back;
 
             if (data.drawTop) { // top (max y)
-                int i1 = mesh.float3(minX, maxY, minZ).float2(top.u, top.v).float4((uint) Color4.Purple.ToArgb()).next();
-                int i2 = mesh.float3(maxX, maxY, minZ).float2(top.u + top.width, top.v).float4((uint) Color4.Purple.ToArgb()).next();
-                int i3 = mesh.float3(maxX, maxY, maxZ).float2(top.u + top.width, top.v + top.height).float4((uint) Color4.Purple.ToArgb()).next();
-                int i4 = mesh.float3(minX, maxY, maxZ).float2(top.u, top.v + top.height).float4((uint) Color4.Purple.ToArgb()).next();
+                int i1 = mesh.float3(minX, maxY, minZ).float2(top.u, top.v).float4(0xffffffff).next();
+                int i2 = mesh.float3(maxX, maxY, minZ).float2(top.u + top.width, top.v).float4(0xffffffff).next();
+                int i3 = mesh.float3(maxX, maxY, maxZ).float2(top.u + top.width, top.v + top.height).float4(0xffffffff).next();
+                int i4 = mesh.float3(minX, maxY, maxZ).float2(top.u, top.v + top.height).float4(0xffffffff).next();
                 mesh.quad(i1, i2, i3, i4);
             }
             
             if (data.drawLeft) { // left (min x)
-                int i1 = mesh.float3(minX, minY, minZ).float2(left.u, left.v).float4((uint) Color4.Red.ToArgb()).next();
-                int i2 = mesh.float3(minX, maxY, minZ).float2(left.u, left.v + left.height).float4((uint) Color4.Red.ToArgb()).next();
-                int i3 = mesh.float3(minX, maxY, maxZ).float2(left.u + left.width, left.v + left.height).float4((uint) Color4.Red.ToArgb()).next();
-                int i4 = mesh.float3(minX, minY, maxZ).float2(left.u + left.width, left.v).float4((uint) Color4.Red.ToArgb()).next();
+                int i1 = mesh.float3(minX, minY, minZ).float2(left.u, left.v + left.height).float4(0xffffffff).next();
+                int i2 = mesh.float3(minX, maxY, minZ).float2(left.u, left.v).float4(0xffffffff).next();
+                int i3 = mesh.float3(minX, maxY, maxZ).float2(left.u + left.width, left.v).float4(0xffffffff).next();
+                int i4 = mesh.float3(minX, minY, maxZ).float2(left.u + left.width, left.v + left.height).float4(0xffffffff).next();
                 mesh.quad(i1, i2, i3, i4);
             }
 
             if (data.drawRight) { // right (max x)
-                int i1 = mesh.float3(maxX, minY, minZ).float2(right.u, right.v).float4((uint) Color4.Blue.ToArgb()).next();
-                int i2 = mesh.float3(maxX, maxY, minZ).float2(right.u, right.v + right.height).float4((uint) Color4.Blue.ToArgb()).next();
-                int i3 = mesh.float3(maxX, maxY, maxZ).float2(right.u + right.width, right.v + right.height).float4((uint) Color4.Blue.ToArgb()).next();
-                int i4 = mesh.float3(maxX, minY, maxZ).float2(right.u + right.width, right.v).float4((uint) Color4.Blue.ToArgb()).next();
+                int i1 = mesh.float3(maxX, minY, minZ).float2(right.u, right.v + right.height).float4(0xffffffff).next();
+                int i2 = mesh.float3(maxX, maxY, minZ).float2(right.u, right.v).float4(0xffffffff).next();
+                int i3 = mesh.float3(maxX, maxY, maxZ).float2(right.u + right.width, right.v).float4(0xffffffff).next();
+                int i4 = mesh.float3(maxX, minY, maxZ).float2(right.u + right.width, right.v + right.height).float4(0xffffffff).next();
                 mesh.quad(i1, i2, i3, i4);
             }
 
             if (data.drawFront) { // front (min z)
-                int i1 = mesh.float3(minX, minY, minZ).float2(front.u, front.v).float4((uint) Color4.Green.ToArgb()).next();
-                int i2 = mesh.float3(maxX, minY, minZ).float2(front.u + front.width, front.v).float4((uint) Color4.Green.ToArgb()).next();
-                int i3 = mesh.float3(maxX, maxY, minZ).float2(front.u + front.width, front.v + front.height).float4((uint) Color4.Green.ToArgb()).next();
-                int i4 = mesh.float3(minX, maxY, minZ).float2(front.u, front.v + front.height).float4((uint) Color4.Green.ToArgb()).next();
+                int i1 = mesh.float3(minX, minY, minZ).float2(front.u, front.v + front.height).float4(0xffffffff).next();
+                int i2 = mesh.float3(maxX, minY, minZ).float2(front.u + front.width, front.v + front.height).float4(0xffffffff).next();
+                int i3 = mesh.float3(maxX, maxY, minZ).float2(front.u + front.width, front.v).float4(0xffffffff).next();
+                int i4 = mesh.float3(minX, maxY, minZ).float2(front.u, front.v).float4(0xffffffff).next();
                 mesh.quad(i1, i2, i3, i4);
             }
 
             if (data.drawBack) { // back (max z)
-                int i1 = mesh.float3(minX, minY, maxZ).float2(back.u, back.v).float4((uint) Color4.Yellow.ToArgb()).next();
-                int i2 = mesh.float3(maxX, minY, maxZ).float2(back.u + back.width, back.v).float4((uint) Color4.Yellow.ToArgb()).next();
-                int i3 = mesh.float3(maxX, maxY, maxZ).float2(back.u + back.width, back.v + back.height).float4((uint) Color4.Yellow.ToArgb()).next();
-                int i4 = mesh.float3(minX, maxY, maxZ).float2(back.u, back.v + back.height).float4((uint) Color4.Yellow.ToArgb()).next();
+                int i1 = mesh.float3(minX, minY, maxZ).float2(back.u, back.v + back.height).float4(0xffffffff).next();
+                int i2 = mesh.float3(maxX, minY, maxZ).float2(back.u + back.width, back.v + back.height).float4(0xffffffff).next();
+                int i3 = mesh.float3(maxX, maxY, maxZ).float2(back.u + back.width, back.v).float4(0xffffffff).next();
+                int i4 = mesh.float3(minX, maxY, maxZ).float2(back.u, back.v).float4(0xffffffff).next();
                 mesh.quad(i1, i2, i3, i4);
             }
 
@@ -120,6 +118,11 @@ namespace Why.Engine
             {
                 return;
             }
+
+            if (beginEnd)
+            {
+                mesh.begin();
+            }
             
             var bounds = _bounds.Value;
             int i1 = mesh.float3(bounds.x, 0, bounds.y).float2(sprite.u, sprite.v).float4(0xffffffff).next();
@@ -127,6 +130,11 @@ namespace Why.Engine
             int i3 = mesh.float3(bounds.x + bounds.width, 0, bounds.y + bounds.height).float2(sprite.u + sprite.width, sprite.v + sprite.height).float4(0xffffffff).next();
             int i4 = mesh.float3(bounds.x, 0, bounds.y + bounds.height).float2(sprite.u, sprite.v + sprite.height).float4(0xffffffff).next();
             mesh.quad(i1, i2, i3, i4);
+            
+            if (beginEnd)
+            {
+                mesh.end();
+            }
         }
     }
 }

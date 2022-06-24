@@ -16,7 +16,7 @@ namespace Why.Game.Objects
             data = new CubeRenderData();
             addComponent(new IntPosComponent());
             addComponent(new CubeRenderingComponent());
-            addComponent(new CollisionComponent(new(position.X * 40, position.Y - 1, position.Z * 40, position.X * 40 + 40, position.Y * 1, position.Z * 40 + 40)));
+            addComponent(new CollisionComponent(new(position.X * 40, position.Y * 40 - 40, position.Z * 40, position.X * 40 + 40, position.Y * 40, position.Z * 40 + 40)));
         }
     }
 }

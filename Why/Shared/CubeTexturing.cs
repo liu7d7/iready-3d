@@ -2,7 +2,7 @@
 {
     public class CubeTexturing
     {
-        public static readonly CubeTexturing grass = new(Sprites.rectangle, Sprites.rectangle, Sprites.rectangle, Sprites.rectangle, Sprites.rectangle);
+        public static readonly CubeTexturing grass = new(Sprites.grassTop, Sprites.grassSide, Sprites.grassSide, Sprites.grassSide, Sprites.grassSide);
         
         public Sprite top, left, right, front, back;
         
