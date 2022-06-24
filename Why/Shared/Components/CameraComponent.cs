@@ -37,7 +37,6 @@ namespace Why.Shared.Components
                 return Matrix4.Identity;
             }
             Vector3 pos = new(_pos.x, _pos.y, _pos.z);
-            Console.WriteLine($"{_pos.x} {_pos.y} {_pos.z} {_pos.yaw} {_pos.pitch}");
             return Matrix4.LookAt(pos, pos + front, up);
         }
     }

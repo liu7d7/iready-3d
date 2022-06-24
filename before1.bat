@@ -1,0 +1,1 @@
+xcopy "C:\Users\realm\RiderProjects\Why\Why\Resource" "C:\Users\realm\RiderProjects\Why\Why\bin\Release\net6.0\Resource" /E /H /C /R /Q /Y

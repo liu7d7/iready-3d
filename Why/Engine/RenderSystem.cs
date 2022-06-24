@@ -11,18 +11,24 @@ namespace Why.Engine
     {
 
         private static readonly Shader _john = new("Resource/Shader/john.vert", "Resource/Shader/john.frag");
+        private static readonly Shader _outline = new("Resource/Shader/twoD.vert", "Resource/Shader/depthOutline.frag");
+        private static readonly uint _light = 0xffffffff;
+        private static readonly uint _darker = 0xffdddddd;
+        private static readonly uint _darkest = 0xffbbbbbb;
         private static Matrix4 _projection;
         private static Matrix4 _lookAt;
 
         public static readonly Texture tex0 = Texture.loadFromFile("Resource/Texture/Texture.png");
         public static readonly Mesh mesh = new(Mesh.DrawMode.triangle, _john, Vao.Attrib.float3, Vao.Attrib.float2, Vao.Attrib.float4);
         public static readonly Fbo frame = new(Why.instance.Size.X, Why.instance.Size.Y, true);
+        public static bool rendering3d;
 
         public static void setDefaults(this Shader shader)
         {
             shader.setMatrix4("_proj", _projection);
             shader.setMatrix4("_lookAt", _lookAt);
             shader.setVector2("_tex0Size", Texture.currentBounds());
+            shader.setVector2("_screenSize", new(Why.instance.Size.X, Why.instance.Size.Y));
         }
 
         public static void updateProjection()
@@ -30,28 +36,37 @@ namespace Why.Engine
             Matrix4.CreateOrthographic(Why.instance.Size.X, Why.instance.Size.Y, -1000, 3000, out _projection);
         }
 
-        public static void updateLookAt(WhyObj cameraObj, bool twoD = false)
+        public static void updateLookAt(WhyObj cameraObj, bool _rendering3d = true)
         {
             if (!cameraObj.hasComponent<FloatPosComponent>())
             {
                 return;
             }
 
-            if (twoD)
+            rendering3d = _rendering3d;
+            if (!rendering3d)
             {
                 _lookAt = Matrix4.Identity;
+                return;
             }
 
             var comp = cameraObj.getComponent<CameraComponent>();
             _lookAt = comp.getCameraMatrix();
         }
-        
-        public static void draw(AABB bounds, CubeTexturing texturing, CubeRenderData data, bool beginEnd = false)
+
+        public static void draw(AABB? _bounds, CubeTexturing texturing, CubeRenderData data, bool beginEnd = false)
         {
             if (beginEnd)
             {
                 mesh.begin();
             }
+
+            if (!_bounds.HasValue)
+            {
+                return;
+            }
+
+            AABB bounds = _bounds.Value;
 
             var minX = bounds.minX;
             var minY = bounds.minY;
@@ -66,43 +81,53 @@ namespace Why.Engine
             var front = texturing.front;
             var back = texturing.back;
 
-            if (data.drawTop) { // top (max y)
-                int i1 = mesh.float3(minX, maxY, minZ).float2(top.u, top.v).float4(0xffffffff).next();
-                int i2 = mesh.float3(maxX, maxY, minZ).float2(top.u + top.width, top.v).float4(0xffffffff).next();
-                int i3 = mesh.float3(maxX, maxY, maxZ).float2(top.u + top.width, top.v + top.height).float4(0xffffffff).next();
-                int i4 = mesh.float3(minX, maxY, maxZ).float2(top.u, top.v + top.height).float4(0xffffffff).next();
+            // top (max y)
+            if (data.drawTop)  
+            {
+                int i1 = mesh.float3(minX, maxY, minZ).float2(top.u, top.v).float4(_light).next();
+                int i2 = mesh.float3(maxX, maxY, minZ).float2(top.u + top.width, top.v).float4(_light).next();
+                int i3 = mesh.float3(maxX, maxY, maxZ).float2(top.u + top.width, top.v + top.height).float4(_light).next();
+                int i4 = mesh.float3(minX, maxY, maxZ).float2(top.u, top.v + top.height).float4(_light).next();
                 mesh.quad(i1, i2, i3, i4);
             }
             
-            if (data.drawLeft) { // left (min x)
-                int i1 = mesh.float3(minX, minY, minZ).float2(left.u, left.v + left.height).float4(0xffffffff).next();
-                int i2 = mesh.float3(minX, maxY, minZ).float2(left.u, left.v).float4(0xffffffff).next();
-                int i3 = mesh.float3(minX, maxY, maxZ).float2(left.u + left.width, left.v).float4(0xffffffff).next();
-                int i4 = mesh.float3(minX, minY, maxZ).float2(left.u + left.width, left.v + left.height).float4(0xffffffff).next();
+            // left (min x)
+            if (data.drawLeft) 
+            {
+                int i1 = mesh.float3(minX, minY, minZ).float2(left.u, left.v + left.height).float4(_darker).next();
+                int i2 = mesh.float3(minX, maxY, minZ).float2(left.u, left.v).float4(_darker).next();
+                int i3 = mesh.float3(minX, maxY, maxZ).float2(left.u + left.width, left.v).float4(_darker).next();
+                int i4 = mesh.float3(minX, minY, maxZ).float2(left.u + left.width, left.v + left.height).float4(_darker).next();
                 mesh.quad(i1, i2, i3, i4);
             }
 
-            if (data.drawRight) { // right (max x)
-                int i1 = mesh.float3(maxX, minY, minZ).float2(right.u, right.v + right.height).float4(0xffffffff).next();
-                int i2 = mesh.float3(maxX, maxY, minZ).float2(right.u, right.v).float4(0xffffffff).next();
-                int i3 = mesh.float3(maxX, maxY, maxZ).float2(right.u + right.width, right.v).float4(0xffffffff).next();
-                int i4 = mesh.float3(maxX, minY, maxZ).float2(right.u + right.width, right.v + right.height).float4(0xffffffff).next();
+            // right (max x)
+            if (data.drawRight)
+            {
+                int i1 = mesh.float3(maxX, minY, minZ).float2(right.u, right.v + right.height).float4(_darkest).next();
+                int i2 = mesh.float3(maxX, maxY, minZ).float2(right.u, right.v).float4(_darkest).next();
+                int i3 = mesh.float3(maxX, maxY, maxZ).float2(right.u + right.width, right.v).float4(_darkest).next();
+                int i4 = mesh.float3(maxX, minY, maxZ).float2(right.u + right.width, right.v + right.height).float4(_darkest).next();
                 mesh.quad(i1, i2, i3, i4);
             }
 
-            if (data.drawFront) { // front (min z)
-                int i1 = mesh.float3(minX, minY, minZ).float2(front.u, front.v + front.height).float4(0xffffffff).next();
-                int i2 = mesh.float3(maxX, minY, minZ).float2(front.u + front.width, front.v + front.height).float4(0xffffffff).next();
-                int i3 = mesh.float3(maxX, maxY, minZ).float2(front.u + front.width, front.v).float4(0xffffffff).next();
-                int i4 = mesh.float3(minX, maxY, minZ).float2(front.u, front.v).float4(0xffffffff).next();
+            // front (min z)
+            if (data.drawFront) 
+            {
+                int i1 = mesh.float3(minX, minY, minZ).float2(front.u, front.v + front.height).float4(_darker).next();
+                int i2 = mesh.float3(maxX, minY, minZ).float2(front.u + front.width, front.v + front.height).float4(_darker).next();
+                int i3 = mesh.float3(maxX, maxY, minZ).float2(front.u + front.width, front.v).float4(_darker).next();
+                int i4 = mesh.float3(minX, maxY, minZ).float2(front.u, front.v).float4(_darker).next();
                 mesh.quad(i1, i2, i3, i4);
             }
 
-            if (data.drawBack) { // back (max z)
-                int i1 = mesh.float3(minX, minY, maxZ).float2(back.u, back.v + back.height).float4(0xffffffff).next();
-                int i2 = mesh.float3(maxX, minY, maxZ).float2(back.u + back.width, back.v + back.height).float4(0xffffffff).next();
-                int i3 = mesh.float3(maxX, maxY, maxZ).float2(back.u + back.width, back.v).float4(0xffffffff).next();
-                int i4 = mesh.float3(minX, maxY, maxZ).float2(back.u, back.v).float4(0xffffffff).next();
+            // back (max z)
+            if (data.drawBack)
+            { 
+                int i1 = mesh.float3(minX, minY, maxZ).float2(back.u, back.v + back.height).float4(_darkest).next();
+                int i2 = mesh.float3(maxX, minY, maxZ).float2(back.u + back.width, back.v + back.height).float4(_darkest).next();
+                int i3 = mesh.float3(maxX, maxY, maxZ).float2(back.u + back.width, back.v).float4(_darkest).next();
+                int i4 = mesh.float3(minX, maxY, maxZ).float2(back.u, back.v).float4(_darkest).next();
                 mesh.quad(i1, i2, i3, i4);
             }
 
@@ -134,6 +159,24 @@ namespace Why.Engine
             if (beginEnd)
             {
                 mesh.end();
+            }
+        }
+
+        public static void drawHat(Vector3 tip, float rad, float lowering, uint color)
+        {
+            // render circle with center raised but circumference lowered
+            for (int i = 0; i < 60; i++)
+            {
+                float startAngle = i * 6;
+                float endAngle = i * 6 + 6;
+                float startX = MathF.Cos(startAngle.toRadians()) * rad + tip.X;
+                float startZ = MathF.Sin(startAngle.toRadians()) * rad + tip.Z;
+                float endX = MathF.Cos(endAngle.toRadians()) * rad + tip.X;
+                float endZ = MathF.Sin(endAngle.toRadians()) * rad + tip.Z;
+                int i1 = mesh.float3(tip.X, tip.Y, tip.Z).float2(Sprites.rectangle.u, Sprites.rectangle.v).float4(color).next();
+                int i2 = mesh.float3(startX, tip.Y - lowering, startZ).float2(Sprites.rectangle.u, Sprites.rectangle.v + Sprites.rectangle.height).float4(color).next();
+                int i3 = mesh.float3(endX, tip.Y - lowering, endZ).float2(Sprites.rectangle.u + Sprites.rectangle.width, Sprites.rectangle.v).float4(color).next();
+                mesh.tri(i1, i2, i3);
             }
         }
     }

@@ -24,14 +24,15 @@ namespace Why.Game.Components
 
             var comp = objIn.getComponent<FloatPosComponent>();
             
-            var x = comp.x;
-            var y = comp.y;
-            var z = comp.z;
-            int i1 = RenderSystem.mesh.float3(x - 30, y, z - 30).float2(Sprites.rectangle.u, Sprites.rectangle.v).float4(0xffffffff).next();
-            int i2 = RenderSystem.mesh.float3(x - 30, y, z + 30).float2(Sprites.rectangle.u, Sprites.rectangle.v + Sprites.rectangle.height).float4(0xffffffff).next();
-            int i3 = RenderSystem.mesh.float3(x + 30, y, z + 30).float2(Sprites.rectangle.u + Sprites.rectangle.width, Sprites.rectangle.v + Sprites.rectangle.height).float4(0xffffffff).next();
-            int i4 = RenderSystem.mesh.float3(x + 30, y, z - 30).float2(Sprites.rectangle.u + Sprites.rectangle.width, Sprites.rectangle.v).float4(0xffffffff).next();
-            RenderSystem.mesh.quad(i1, i2, i3, i4);
+            float x = comp.x;
+            float y = comp.y;
+            float z = comp.z;
+            
+            
+            AABB aabb = new(x - 5, y, z - 5, x + 5, y + 65, z + 5);
+            RenderSystem.draw(aabb, CubeTexturing.player, CubeRenderData.allTrue);
+            AABB aabb1 = new(x - 10, y + 70, z - 10, x + 10, y + 90, z + 10);
+            RenderSystem.draw(aabb1, CubeTexturing.playerHead, CubeRenderData.allTrue);
         }
 
         public override void update(WhyObj objIn)
@@ -50,19 +51,19 @@ namespace Why.Game.Components
             base.update(objIn);
             
             _motion = Vector3.Zero;
-            var yaw = 0.0f;
+            float yaw = 0.0f;
 
-            var kstate = Why.instance.KeyboardState;
+            KeyboardState kstate = Why.instance.KeyboardState;
 
             if (kstate.IsKeyDown(Keys.W))
             {
-                var vec = Vector3.Cross(_camera.right, _camera.up).Normalized();
+                Vector3 vec = Vector3.Cross(_camera.right, _camera.up).Normalized();
                 _motion -= vec;
             }
 
             if (kstate.IsKeyDown(Keys.S))
             {
-                var vec = Vector3.Cross(_camera.right, _camera.up).Normalized();
+                Vector3 vec = Vector3.Cross(_camera.right, _camera.up).Normalized();
                 _motion += vec;
             }
 
@@ -91,7 +92,7 @@ namespace Why.Game.Components
             _pos.z += _motion.Z;
             _pos.yaw += yaw;
             
-            var mstate = Why.instance.MouseState;
+            MouseState mstate = Why.instance.MouseState;
             
             if (kstate.IsKeyDown(Keys.LeftShift))
             {

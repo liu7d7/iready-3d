@@ -8,7 +8,6 @@ namespace Why.Engine
     // taken from https://github.com/opentk/LearnOpenTK/blob/master/Common/Texture.cs
     public class Texture
     {
-
         private static int _active;
         private static readonly Dictionary<int, Texture> _textures = new();
         private readonly int _handle;

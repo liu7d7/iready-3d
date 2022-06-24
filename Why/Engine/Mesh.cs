@@ -1,4 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 
 namespace Why.Engine
 {
@@ -52,6 +53,14 @@ namespace Why.Engine
             _vbo.put(p0);
             _vbo.put(p1);
             _vbo.put(p2);
+            return this;
+        }
+
+        public Mesh float3(Matrix4 transform, float p0, float p1, float p2)
+        {
+            Vector4 vec = new(p0, p1, p2, 1);
+            vec *= transform;
+            float3(vec.X, vec.Y, vec.Z);
             return this;
         }
         
@@ -133,7 +142,14 @@ namespace Why.Engine
             {
                 GlStateManager.saveState();
                 GlStateManager.enableBlend();
-                GlStateManager.enableDepth();
+                if (RenderSystem.rendering3d)
+                {
+                    GlStateManager.enableDepth();
+                }
+                else
+                {
+                    GlStateManager.disableDepth();
+                }
                 _shader?.bind();
                 _shader?.setDefaults();
                 _vao.bind();
@@ -157,6 +173,21 @@ namespace Why.Engine
             {
                 this.size = size;
                 _cid = _cidCounter++;
+            }
+
+            public override bool Equals(object? obj)
+            {
+                if (obj is DrawMode mode)
+                {
+                    return _cid == mode._cid;
+                }
+
+                return false;
+            }
+        
+            public override int GetHashCode()
+            {
+                return _cid;
             }
 
             public BeginMode asGl()

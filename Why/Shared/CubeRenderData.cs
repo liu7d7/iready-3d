@@ -2,6 +2,8 @@
 {
     public struct CubeRenderData
     {
+        public static readonly CubeRenderData allTrue = new();
+        
         public bool drawTop, drawLeft, drawRight, drawFront, drawBack;
 
         public CubeRenderData()

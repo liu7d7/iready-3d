@@ -36,12 +36,12 @@ namespace Why
         
         public static float toRadians(this float degrees)
         {
-            return degrees * (float) Math.PI / 180f;
+            return (float) (degrees * Math.PI / 180.0);
         }
         
         public static float toDegrees(this float radians)
         {
-            return radians * 180f / (float) Math.PI;
+            return (float) (radians * 180 / Math.PI);
         }
 
         public static void scale(this ref Matrix4 matrix4, float scalar)

@@ -50,6 +50,7 @@ namespace Why.Engine
             {
                 dispose();
             }
+
             _handle = GL.GenFramebuffer();
             bind();
             _colorAttachment = GL.GenTexture();
@@ -78,6 +79,7 @@ namespace Why.Engine
             {
                 throw new Exception($"Incomplete Framebuffer! {status} should be {FramebufferErrorCode.FramebufferComplete}");
             }
+
             unbind();
         }
 
@@ -95,7 +97,23 @@ namespace Why.Engine
                 frame.Value._resize(width, height);
             }
         }
+
+        public void bindColor(TextureUnit unit)
+        {
+            GL.ActiveTexture(unit);
+            GL.BindTexture(TextureTarget.Texture2D, _colorAttachment);
+        }
         
+        public void bindDepth(TextureUnit unit)
+        {
+            if (!_useDepth)
+            {
+                throw new Exception("Trying to bind depth texture of a framebuffer without depth!");
+            }
+            GL.ActiveTexture(unit);
+            GL.BindTexture(TextureTarget.Texture2D, _depthAttachment);
+        }
+
         public void bind()
         {
             if (_handle == _active)

@@ -53,7 +53,7 @@ namespace Why
         {
             base.OnLoad();
 
-            GL.ClearColor(0.11f, 0.11f, 0.15f, 1.0f);
+            GL.ClearColor(0f, 0f, 0f, 0f);
             GL.DepthFunc(DepthFunction.Lequal);
             RenderSystem.updateProjection();
         }

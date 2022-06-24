@@ -1,5 +1,4 @@
-﻿using OpenTK.Mathematics;
-using Why.Game;
+﻿using Why.Game;
 
 namespace Why.Shared.Components
 {
