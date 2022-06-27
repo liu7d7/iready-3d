@@ -1,4 +1,7 @@
-﻿namespace Why.Game.Components
+﻿using OpenTK.Mathematics;
+using Why.Shared;
+
+namespace Why.Game.Components
 {
     public class IntPosComponent : WhyObj.Component
     {
@@ -16,6 +19,13 @@
             this.x = x;
             this.y = y;
             this.z = z;
+        }
+
+        public IntPosComponent(Vector3i pos)
+        {
+            x = pos.X;
+            y = pos.Y;
+            z = pos.Z;
         }
     }
 }

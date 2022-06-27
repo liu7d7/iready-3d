@@ -17,16 +17,24 @@ namespace Why
             return o;
         }
 
-        public static Vector2 normalizedFast(this Vector2 vec)
+        public static Vector2 normalizedFast(this ref Vector2 vec)
         {
+            if (vec == Vector2.Zero)
+            {
+                return vec;
+            }
             var length = MathHelper.InverseSqrtFast((float) (vec.X * (double) vec.X + vec.Y * (double) vec.Y));
             vec.X *= length;
             vec.Y *= length;
             return vec;
         }
 
-        public static Vector3 normalizedFast(this Vector3 vec)
+        public static Vector3 normalizedFast(this ref Vector3 vec)
         {
+            if (vec == Vector3.Zero)
+            {
+                return vec;
+            }
             var length = MathHelper.InverseSqrtFast((float) (vec.X * (double) vec.X + vec.Y * (double) vec.Y + vec.Z * (double) vec.Z));
             vec.X *= length;
             vec.Y *= length;
@@ -77,6 +85,13 @@ namespace Why
         public static void rotate(this ref Matrix4 matrix4, float angle, float x, float y, float z)
         {
             matrix4 *= Matrix4.CreateFromAxisAngle(new Vector3(x, y, z), angle);
+        }
+
+        public static int distanceSq(this Vector2i vec, Vector2i other)
+        {
+            var (x, y) = vec;
+            var (i, i1) = other;
+            return (x - i) * (x - i) + (y - i1) * (y - i1);
         }
     }
 }

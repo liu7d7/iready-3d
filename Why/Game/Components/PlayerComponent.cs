@@ -11,6 +11,7 @@ namespace Why.Game.Components
 
         private Vector3 _motion;
         private FloatPosComponent? _pos;
+        private IntPosComponent? _posi;
         private CameraComponent? _camera;
         
         public PlayerComponent()
@@ -41,6 +42,11 @@ namespace Why.Game.Components
             if (_pos == null)
             {
                 _pos = objIn.getComponent<FloatPosComponent>();
+            }
+            
+            if (_posi == null)
+            {
+                _posi = objIn.getComponent<IntPosComponent>();
             }
             
             if (_camera == null)
@@ -87,10 +93,23 @@ namespace Why.Game.Components
                 yaw += 1.0f;
             }
             
-            _pos.x += _motion.X;
-            _pos.y += _motion.Y;
-            _pos.z += _motion.Z;
+            if (_motion.X != 0 && _motion.Z != 0 && _motion.Y != 0)
+            {
+                _motion.Normalize();
+            }
+            
+            if (_motion != Vector3.Zero)
+            {
+                _motion.NormalizeFast();
+            }
+
+            _pos.x += _motion.X * 4;
+            _pos.y += _motion.Y * 4;
+            _pos.z += _motion.Z * 4;
             _pos.yaw += yaw;
+            _posi.x = (int) MathF.Floor(_pos.x / 40f);
+            _posi.y = (int) MathF.Floor(_pos.y / 40f);
+            _posi.z = (int) MathF.Floor(_pos.z / 40f);
             
             MouseState mstate = Why.instance.MouseState;
             

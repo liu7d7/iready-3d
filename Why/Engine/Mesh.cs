@@ -56,14 +56,6 @@ namespace Why.Engine
             return this;
         }
 
-        public Mesh float3(Matrix4 transform, float p0, float p1, float p2)
-        {
-            Vector4 vec = new(p0, p1, p2, 1);
-            vec *= transform;
-            float3(vec.X, vec.Y, vec.Z);
-            return this;
-        }
-        
         public Mesh float4(float p0, float p1, float p2, float p3)
         {
             _vbo.put(p0);

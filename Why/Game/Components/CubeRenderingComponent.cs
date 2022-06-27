@@ -8,11 +8,6 @@ namespace Why.Game.Components
     {
         private AABB? _aabb;
         
-        public CubeRenderingComponent()
-        {
-            
-        }
-
         public override void render(WhyObj objIn)
         {
             if (objIn is Cube c)

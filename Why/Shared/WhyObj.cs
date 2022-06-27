@@ -1,7 +1,4 @@
-﻿using Why.Engine;
-using Why.Shared;
-
-namespace Why.Game
+﻿namespace Why.Shared
 {
     public class WhyObj
     {
@@ -14,7 +11,7 @@ namespace Why.Game
 
         public void update()
         {
-            foreach (var component in _components)
+            foreach (Component component in _components)
             {
                 component.update(this);
             }
@@ -22,7 +19,7 @@ namespace Why.Game
 
         public void render()
         {
-            foreach (var component in _components)
+            foreach (Component component in _components)
             {
                 component.render(this);
             }

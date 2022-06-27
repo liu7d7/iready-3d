@@ -1,4 +1,5 @@
 ﻿using Why.Game.Objects;
+using Why.Shared;
 
 namespace Why.Game.Components
 {

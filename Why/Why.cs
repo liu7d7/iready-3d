@@ -14,8 +14,8 @@ namespace Why
     public class Why : GameWindow
     {
         private readonly WhyObj _player;
-        
-        private readonly List<WhyObj> _tiles;
+        private readonly Dictionary<Vector3i, WhyObj> _tiles;
+        private readonly IntPosComponent _playerPosi;
 
         public static Why instance = null!;
 
@@ -25,26 +25,100 @@ namespace Why
             _player = new WhyObj();
             _player.addComponent(new PlayerComponent());
             _player.addComponent(new FloatPosComponent());
+            _player.addComponent(new IntPosComponent());
+            _playerPosi = _player.getComponent<IntPosComponent>();
             _player.addComponent(new CameraComponent());
             _player.getComponent<FloatPosComponent>().yaw = 45;
             _player.getComponent<FloatPosComponent>().pitch = 215;
-            _tiles = new List<WhyObj>();
-            for (int i = -5; i <= 5; i++)
+            _tiles = new Dictionary<Vector3i, WhyObj>();
+            for (int i = -125; i <= 125; i++)
             {
-                for (int j = -5; j <= 5; j++)
+                for (int j = -125; j <= 125; j++)
                 {
                     if (Random.Shared.NextDouble() > 0.5)
                     {
-                        var tile = new WhyObj();
+                        WhyObj tile = new();
                         tile.addComponent(new IntPosComponent(i + 6, 0, j));
                         tile.addComponent(new TileComponent(Sprites.sand));
-                        _tiles.Add(tile);
+                        _tiles.Add(new(i + 6, 0, j), tile);
                     }
                     else
                     {
-                        var cube = new Cube(CubeTexturing.grass, new(i + 6, 1, j));
-                        _tiles.Add(cube);
+                        Cube cube = new(CubeTexturing.grass, new(i + 6, 1, j));
+                        _tiles.Add(new(i + 6, 1, j), cube);
+                        updateCRDs(cube);
                     }
+                }
+            }
+            for (int i = -125; i <= 125; i++)
+            {
+                for (int j = -125; j <= 125; j++)
+                {
+                    if (Random.Shared.NextDouble() > 0.75)
+                    {
+                        Cube cube = new(CubeTexturing.grass, new(i + 6, 2, j));
+                        _tiles.Add(new(i + 6, 2, j), cube);
+                        updateCRDs(cube);
+                    }
+                }
+            }
+            for (int i = -125; i <= 125; i++)
+            {
+                for (int j = -125; j <= 125; j++)
+                {
+                    if (Random.Shared.NextDouble() > 0.875)
+                    {
+                        Cube cube = new(CubeTexturing.grass, new(i + 6, 3, j));
+                        _tiles.Add(new(i + 6, 3, j), cube);
+                        updateCRDs(cube);
+                    }
+                }
+            }
+            for (int i = -125; i <= 125; i++)
+            {
+                for (int j = -125; j <= 125; j++)
+                {
+                    if (Random.Shared.NextDouble() > 0.975)
+                    {
+                        Cube cube = new(CubeTexturing.grass, new(i + 6, 4, j));
+                        _tiles.Add(new(i + 6, 4, j), cube);
+                        updateCRDs(cube);
+                    }
+                }
+            }
+        }
+
+        private void updateCRDs(Cube cubeIn)
+        {
+            int i = cubeIn.getComponent<IntPosComponent>().x;
+            int j = cubeIn.getComponent<IntPosComponent>().z;
+            int k = cubeIn.getComponent<IntPosComponent>().y;
+            Vector3i left = new(i - 1, k, j);
+            Vector3i front = new(i, k, j - 1);
+            Vector3i down = new(i, k - 1, j);
+            if (_tiles.ContainsKey(left))
+            {
+                if (_tiles[left] is Cube cube)
+                {
+                    cube.data.drawRight = false;
+                    cubeIn.data.drawLeft = false;
+                }
+            }
+
+            if (_tiles.ContainsKey(front))
+            {
+                if (_tiles[front] is Cube cube)
+                {
+                    cube.data.drawBack = false;
+                    cubeIn.data.drawFront = false;
+                }
+            }
+
+            if (_tiles.ContainsKey(down))
+            {
+                if (_tiles[down] is Cube cube)
+                {
+                    cube.data.drawTop = false;
                 }
             }
         }
@@ -71,7 +145,7 @@ namespace Why
             base.OnRenderFrame(args);
             
             RenderSystem.frame.bind();
-
+            
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             
             RenderSystem.updateLookAt(_player);
@@ -81,7 +155,11 @@ namespace Why
             _player.render();
             foreach (var tile in _tiles)
             {
-                tile.render();
+                if (new Vector2i(tile.Key.X, tile.Key.Z).distanceSq(new(_playerPosi.x, _playerPosi.z)) > 484)
+                {
+                    continue;
+                }
+                tile.Value.render();
             }
             RenderSystem.mesh.end();
             RenderSystem.mesh.render();

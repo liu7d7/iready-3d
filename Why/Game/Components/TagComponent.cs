@@ -1,4 +1,6 @@
-﻿namespace Why.Game.Components
+﻿using Why.Shared;
+
+namespace Why.Game.Components
 {
     public class TagComponent : WhyObj.Component
     {
