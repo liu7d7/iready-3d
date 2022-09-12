@@ -37,6 +37,7 @@ namespace Iready.Engine
         public static readonly Texture TEX0 = Texture.LoadFromFile("Resource/Texture/Texture.png");
         public static readonly Texture STARS = Texture.LoadFromFile("Resource/Texture/Stars.png");
         public static readonly Mesh MESH = new(Mesh.DrawMode.TRIANGLE, _JOHN, Vao.Attrib.FLOAT3, Vao.Attrib.FLOAT3, Vao.Attrib.FLOAT2, Vao.Attrib.FLOAT4);
+        public static readonly Mesh LINE = new(Mesh.DrawMode.LINE, _JOHN, Vao.Attrib.FLOAT3, Vao.Attrib.FLOAT3, Vao.Attrib.FLOAT2, Vao.Attrib.FLOAT4);
         public static readonly Fbo FRAME = new(Iready.Instance.Size.X, Iready.Instance.Size.Y, true);
         public static bool Rendering3d;
         private static FloatPos _camera;

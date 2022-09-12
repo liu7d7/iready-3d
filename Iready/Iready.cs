@@ -89,6 +89,7 @@ namespace Iready
             RenderSystem.UpdateLookAt(Player);
             RenderSystem.TEX0.Bind(TextureUnit.Texture0);
             RenderSystem.MESH.Begin();
+            RenderSystem.LINE.Begin();
             Player.Render();
             for (int i = 0; i < 3; i++)
             {
@@ -107,6 +108,8 @@ namespace Iready
 
             RenderSystem.MESH.End();
             RenderSystem.MESH.Render();
+            RenderSystem.LINE.End();
+            RenderSystem.LINE.Render();
             Texture.Unbind();
             
             RenderSystem.UpdateLookAt(Player, false);

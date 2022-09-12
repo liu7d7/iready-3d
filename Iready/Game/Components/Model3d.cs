@@ -10,6 +10,7 @@ namespace Iready.Game.Components
         private static readonly Dictionary<string, Model3d> _COMPONENTS = new();
 
         private readonly List<VertexData[]> _faces = new();
+        private readonly List<VertexData[]> _lines = new();
 
         public class Component : IreadyObj.Component
         {

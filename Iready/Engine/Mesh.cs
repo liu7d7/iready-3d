@@ -100,6 +100,13 @@ namespace Iready.Engine
         {
             return Float4(((color >> 16) & 0xff) * 0.003921569f, ((color >> 8) & 0xff) * 0.003921569f, (color & 0xff) * 0.003921569f, alpha);
         }
+        
+        public void Line(int p0, int p1)
+        {
+            _ibo.Put(p0);
+            _ibo.Put(p1);
+            _index += 2;
+        }
 
         public void Tri(int p0, int p1, int p2)
         {

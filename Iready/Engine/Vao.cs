@@ -11,7 +11,7 @@ namespace Iready.Engine
         {
             _handle = GL.GenVertexArray();
             Bind();
-            var stride = attribs.Sum(attrib => (int) attrib);
+            int stride = attribs.Sum(attrib => (int) attrib);
             int offset = 0;
             for (int i = 0; i < attribs.Length; i++)
             {

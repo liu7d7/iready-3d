@@ -1,2 +1,2 @@
-xcopy "C:\Users\realm\RiderProjects\Iready\Iready\Resource" "C:\Users\realm\RiderProjects\Iready\Iready\bin\Debug\net6.0\Resource" /E /H /C /R /Q /Y
-xcopy "C:\Users\realm\RiderProjects\Iready\Iready\Resource" "C:\Users\realm\RiderProjects\Iready\Iready\bin\Release\net6.0\Resource" /E /H /C /R /Q /Y
+xcopy "C:\Users\richard may clarkson\RiderProjects\iready-3d\Iready\Resource" "C:\Users\richard may clarkson\RiderProjects\iready-3d\Iready\bin\Debug\net6.0\Resource" /E /H /C /R /Q /Y
+xcopy "C:\Users\richard may clarkson\RiderProjects\iready-3d\Iready\Resource" "C:\Users\richard may clarkson\RiderProjects\iready-3d\Iready\bin\Release\net6.0\Resource" /E /H /C /R /Q /Y

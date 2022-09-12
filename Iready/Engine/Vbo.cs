@@ -8,6 +8,7 @@ namespace Iready.Engine
         private static int _active;
         private readonly int _handle;
         private readonly MemoryStream _vertices;
+        private byte[] _bitDest = new byte[4];
 
         public Vbo(int initialCapacity)
         {
@@ -33,7 +34,8 @@ namespace Iready.Engine
 
         public void Put(float element)
         {
-            _vertices.Write(BitConverter.GetBytes(element));
+            BitConverter.TryWriteBytes(_bitDest, element);
+            _vertices.Write(_bitDest);
         }
 
         public void Upload(bool unbindAfter = true)
@@ -42,7 +44,7 @@ namespace Iready.Engine
             {
                 Bind();
             }
-            GL.BufferData(BufferTarget.ArrayBuffer, (int) _vertices.Length, _vertices.ToArray(), BufferUsageHint.DynamicDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, (int) _vertices.Length, _vertices.GetBuffer(), BufferUsageHint.DynamicDraw);
             if (unbindAfter)
             {
                 Unbind();

@@ -8,6 +8,7 @@ namespace Iready.Engine
         private static int _active;
         private readonly int _handle;
         private readonly MemoryStream _indices;
+        private byte[] _bitDest = new byte[4];
 
         public Ibo(int initialCapacity)
         {
@@ -33,7 +34,8 @@ namespace Iready.Engine
 
         public void Put(int element)
         {
-            _indices.Write(BitConverter.GetBytes(element));
+            BitConverter.TryWriteBytes(_bitDest, element);
+            _indices.Write(_bitDest);
         }
 
         public void Upload(bool unbindAfter = true)
@@ -42,7 +44,7 @@ namespace Iready.Engine
             {
                 Bind();
             }
-            GL.BufferData(BufferTarget.ElementArrayBuffer, (int) _indices.Length, _indices.ToArray(), BufferUsageHint.DynamicDraw);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, (int) _indices.Length, _indices.GetBuffer(), BufferUsageHint.DynamicDraw);
             if (unbindAfter)
             {
                 Unbind();
