@@ -37,30 +37,24 @@ namespace Iready.Engine
         
         public static void EnableDepth()
         {
-            if (!_depthEnabled)
-            {
-                _depthEnabled = true;
-                GL.Enable(EnableCap.DepthTest);
-            }
+            if (_depthEnabled) return;
+            _depthEnabled = true;
+            GL.Enable(EnableCap.DepthTest);
         }
         
         public static void DisableDepth()
         {
-            if (_depthEnabled)
-            {
-                _depthEnabled = false;
-                GL.Disable(EnableCap.DepthTest);
-            }
+            if (!_depthEnabled) return;
+            _depthEnabled = false;
+            GL.Disable(EnableCap.DepthTest);
         }
         
         public static void EnableBlend()
         {
-            if (!_blendEnabled)
-            {
-                _blendEnabled = true;
-                GL.Enable(EnableCap.Blend);
-                GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
-            }
+            if (_blendEnabled) return;
+            _blendEnabled = true;
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
         }
         
         public static void DisableBlend()
@@ -74,20 +68,16 @@ namespace Iready.Engine
         
         public static void EnableCull()
         {
-            if (!_cullEnabled)
-            {
-                _cullEnabled = true;
-                GL.Enable(EnableCap.CullFace);
-            }
+            if (_cullEnabled) return;
+            _cullEnabled = true;
+            GL.Enable(EnableCap.CullFace);
         }
         
         public static void DisableCull()
         {
-            if (_cullEnabled)
-            {
-                _cullEnabled = false;
-                GL.Disable(EnableCap.CullFace);
-            }
+            if (!_cullEnabled) return;
+            _cullEnabled = false;
+            GL.Disable(EnableCap.CullFace);
         }
     }
 }

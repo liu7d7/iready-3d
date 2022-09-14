@@ -55,11 +55,9 @@ namespace Iready.Engine
             GL.CompileShader(shader);
 
             GL.GetShader(shader, ShaderParameter.CompileStatus, out var code);
-            if (code != (int)All.True)
-            {
-                var infoLog = GL.GetShaderInfoLog(shader);
-                throw new Exception($"Error occurred whilst compiling Shader({shader}).\n\n{infoLog}");
-            }
+            if (code == (int)All.True) return;
+            string infoLog = GL.GetShaderInfoLog(shader);
+            throw new Exception($"Error occurred whilst compiling Shader({shader}).\n\n{infoLog}");
         }
 
         private static void LinkProgram(int program)
@@ -67,11 +65,9 @@ namespace Iready.Engine
             GL.LinkProgram(program);
 
             GL.GetProgram(program, GetProgramParameterName.LinkStatus, out var code);
-            if (code != (int)All.True)
-            {
-                var infoLog = GL.GetProgramInfoLog(program);
-                throw new Exception($"Error occurred whilst linking Program({program}) \n\n{infoLog}");
-            }
+            if (code == (int)All.True) return;
+            string infoLog = GL.GetProgramInfoLog(program);
+            throw new Exception($"Error occurred whilst linking Program({program}) \n\n{infoLog}");
         }
 
         public void Bind()

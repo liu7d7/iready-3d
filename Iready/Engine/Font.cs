@@ -47,7 +47,7 @@ namespace Iready.Engine
             StbTrueType.stbtt_GetFontVMetrics(fontInfo, &asc, null, null);
             _ascent = asc * StbTrueType.stbtt_ScaleForPixelHeight(fontInfo, height);
             
-            Texture = Texture.LoadFromBuffer(bitmap, 2048, 2048, PixelFormat.Red, PixelInternalFormat.R8);
+            Texture = Texture.LoadFromBuffer(bitmap, 2048, 2048, PixelFormat.Red, PixelInternalFormat.R8, TextureMinFilter.NearestMipmapNearest, TextureMagFilter.Nearest);
         }
 
         public void Bind()

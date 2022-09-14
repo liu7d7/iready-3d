@@ -53,7 +53,7 @@ namespace Iready.Engine
 #pragma warning restore CA1416
         }
         
-        public static Texture LoadFromBuffer(byte[] buffer, int width, int height, PixelFormat format, PixelInternalFormat internalFormat)
+        public static Texture LoadFromBuffer(byte[] buffer, int width, int height, PixelFormat format, PixelInternalFormat internalFormat, TextureMinFilter minFilter = TextureMinFilter.LinearMipmapLinear, TextureMagFilter magFilter = TextureMagFilter.Linear)
         {
             int handle = GL.GenTexture();
 
@@ -71,8 +71,8 @@ namespace Iready.Engine
                 PixelType.UnsignedByte,
                 buffer);
 
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)minFilter);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)magFilter);
             
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);

@@ -40,11 +40,9 @@ namespace Iready.Game.Components
 
         public override void Collide(IreadyObj objIn, IreadyObj other)
         {
-            if (other.Get<Player>() != null)
-            {
-                Iready.Score += 1000;
-                objIn.MarkedForRemoval = true;
-            }
+            if (other.Get<Player>() == null) return;
+            Iready.Score += 1000;
+            objIn.MarkedForRemoval = true;
         }
     }
 }

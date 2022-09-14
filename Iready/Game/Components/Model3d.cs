@@ -133,12 +133,7 @@ namespace Iready.Game.Components
 
         public static Model3d Read(string path, Dictionary<string, uint> colors)
         {
-            if (_COMPONENTS.ContainsKey(path + colors.ContentToString()))
-            {
-                return _COMPONENTS[path + colors.ContentToString()];
-            }
-            
-            return new(path, colors);
+            return _COMPONENTS.ContainsKey(path + colors.ContentToString()) ? _COMPONENTS[path + colors.ContentToString()] : new(path, colors);
         }
     }
 }

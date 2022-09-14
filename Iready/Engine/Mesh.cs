@@ -20,7 +20,7 @@ namespace Iready.Engine
         {
             _drawMode = drawMode;
             _shader = shader;
-            var stride = attribs.Sum(attrib => (int) attrib * sizeof(float));
+            int stride = attribs.Sum(attrib => (int) attrib * sizeof(float));
             _vbo = new Vbo(stride * drawMode.Size * 256 * sizeof(float));
             _vbo.Bind();
             _ibo = new Ibo(drawMode.Size * 512 * sizeof(float));
@@ -163,29 +163,27 @@ namespace Iready.Engine
                 End();
             }
 
-            if (_index > 0)
+            if (_index <= 0) return;
+            GlStateManager.SaveState();
+            GlStateManager.EnableBlend();
+            if (RenderSystem.Rendering3d)
             {
-                GlStateManager.SaveState();
-                GlStateManager.EnableBlend();
-                if (RenderSystem.Rendering3d)
-                {
-                    GlStateManager.EnableDepth();
-                }
-                else
-                {
-                    GlStateManager.DisableDepth();
-                }
-                _shader?.Bind();
-                _shader?.SetDefaults();
-                _vao.Bind();
-                _ibo.Bind();
-                _vbo.Bind();
-                GL.DrawElements(_drawMode.AsGl(), _index, DrawElementsType.UnsignedInt, 0);
-                Ibo.Unbind();
-                Vbo.Unbind();
-                Vao.Unbind();
-                GlStateManager.RestoreState();
+                GlStateManager.EnableDepth();
             }
+            else
+            {
+                GlStateManager.DisableDepth();
+            }
+            _shader?.Bind();
+            _shader?.SetDefaults();
+            _vao.Bind();
+            _ibo.Bind();
+            _vbo.Bind();
+            GL.DrawElements(_drawMode.AsGl(), _index, DrawElementsType.UnsignedInt, 0);
+            Ibo.Unbind();
+            Vbo.Unbind();
+            Vao.Unbind();
+            GlStateManager.RestoreState();
         }
 
         public sealed class DrawMode

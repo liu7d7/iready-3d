@@ -92,7 +92,7 @@ namespace Iready.Engine
 
         public static void Resize(int width, int height)
         {
-            foreach (var frame in _FRAMES)
+            foreach (KeyValuePair<int, Fbo> frame in _FRAMES)
             {
                 frame.Value._resize(width, height);
             }
@@ -104,7 +104,7 @@ namespace Iready.Engine
             GL.BindTexture(TextureTarget.Texture2D, _colorAttachment);
         }
         
-        public void BindDepth(TextureUnit unit)
+        public int BindDepth(TextureUnit unit)
         {
             if (!_useDepth)
             {
@@ -112,6 +112,7 @@ namespace Iready.Engine
             }
             GL.ActiveTexture(unit);
             GL.BindTexture(TextureTarget.Texture2D, _depthAttachment);
+            return _depthAttachment;
         }
 
         public void Bind()

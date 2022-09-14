@@ -44,9 +44,18 @@
             return typeof(T) == comp.GetType();
         }
 
+        private readonly Dictionary<Type, Component> _cache = new();
+
         public T Get<T>() where T : Component
         {
-            return (T) _components.FirstOrDefault(CompFinder<T>, null);
+            if (_cache.TryGetValue(typeof(T), out Component comp))
+            {
+                return (T) comp;
+            }
+            
+            T val = (T)_components.FirstOrDefault(CompFinder<T>, null);
+            _cache[typeof(T)] = val;
+            return val;
         }
         
         public bool Has<T>() where T : Component

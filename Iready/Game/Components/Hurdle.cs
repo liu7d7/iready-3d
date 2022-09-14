@@ -29,11 +29,9 @@ namespace Iready.Game.Components
         public override void Collide(IreadyObj objIn, IreadyObj other)
         {
             Player player;
-            if ((player = other.Get<Player>()) != null)
-            {
-                player.Speed = 0;
-                objIn.MarkedForRemoval = true;
-            }
+            if ((player = other.Get<Player>()) == null) return;
+            player.Speed = 0;
+            objIn.MarkedForRemoval = true;
         }
     }
 }

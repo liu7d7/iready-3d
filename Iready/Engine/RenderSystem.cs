@@ -1,6 +1,8 @@
-﻿using OpenTK.Mathematics;
+﻿using System.Drawing;
+using OpenTK.Mathematics;
 using Iready.Shared;
 using Iready.Shared.Components;
+using OpenTK.Graphics.OpenGL4;
 
 namespace Iready.Engine
 {
@@ -8,6 +10,7 @@ namespace Iready.Engine
     {
 
         private static readonly Shader _JOHN = new("Resource/Shader/john.vert", "Resource/Shader/john.frag");
+        private static readonly Shader _PIXEL = new("Resource/Shader/postprocess.vert", "Resource/Shader/pixelate.frag");
         private static Matrix4 _projection;
         private static Matrix4 _lookAt;
         private static Matrix4[] _model = new Matrix4[7];
@@ -33,14 +36,17 @@ namespace Iready.Engine
             Model.Set(_model[_modelIdx]);
         }
 
-        public static readonly Font FONT = new(File.ReadAllBytes("Resource/Font/Dank Mono Regular.otf"), 32);
+        public static readonly Font FONT = new(File.ReadAllBytes("Resource/Font/m5x7.ttf"), 32);
         public static readonly Texture TEX0 = Texture.LoadFromFile("Resource/Texture/Texture.png");
         public static readonly Texture STARS = Texture.LoadFromFile("Resource/Texture/Stars.png");
         public static readonly Mesh MESH = new(Mesh.DrawMode.TRIANGLE, _JOHN, Vao.Attrib.FLOAT3, Vao.Attrib.FLOAT3, Vao.Attrib.FLOAT2, Vao.Attrib.FLOAT4);
         public static readonly Mesh LINE = new(Mesh.DrawMode.LINE, _JOHN, Vao.Attrib.FLOAT3, Vao.Attrib.FLOAT3, Vao.Attrib.FLOAT2, Vao.Attrib.FLOAT4);
+        public static readonly Mesh POST = new(Mesh.DrawMode.TRIANGLE, null, Vao.Attrib.FLOAT2);
         public static readonly Fbo FRAME = new(Iready.Instance.Size.X, Iready.Instance.Size.Y, true);
         public static bool Rendering3d;
         private static FloatPos _camera;
+
+        public static Vector2i Size => Iready.Instance.Size;
 
         public static void SetDefaults(this Shader shader)
         {
@@ -50,6 +56,23 @@ namespace Iready.Engine
             shader.SetInt("_rendering3d", Rendering3d ? 1 : 0);
             shader.SetInt("_renderingRed", RenderingRed ? 1 : 0);
             shader.SetVector3("lightPos", new(_camera.X + 5, _camera.Y + 12, _camera.Z + 5));
+        }
+
+        public static void RenderPixelation()
+        {
+            _PIXEL.Bind();
+            FRAME.BindColor(TextureUnit.Texture0);
+            _PIXEL.SetInt("_tex0", 0);
+            _PIXEL.SetVector2("_screenSize", new Vector2(Size.X, Size.Y));
+            _PIXEL.SetVector2("_pixSize", new Vector2(6, 6));
+            POST.Begin();
+            int i1 = POST.Float2(0, 0).Next();
+            int i2 = POST.Float2(Size.X, 0).Next();
+            int i3 = POST.Float2(Size.X, Size.Y).Next();
+            int i4 = POST.Float2(0, Size.Y).Next();
+            POST.Quad(i1, i2, i3, i4);
+            POST.Render();
+            Shader.Unbind();
         }
 
         public static void UpdateProjection()

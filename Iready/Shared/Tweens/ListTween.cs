@@ -19,15 +19,13 @@
         
         public override float Output()
         {
-            if (_list[_idx].Done())
+            if (!_list[_idx].Done()) return _lastOut = _list[_idx].Output();
+            if (_idx == _list.Length - 1)
             {
-                if (_idx == _list.Length - 1)
-                {
-                    return _lastOut;
-                }
-                _idx++;
-                _list[_idx].LastActivation = Environment.TickCount;
+                return _lastOut;
             }
+            _idx++;
+            _list[_idx].LastActivation = Environment.TickCount;
             return _lastOut = _list[_idx].Output();
         }
 

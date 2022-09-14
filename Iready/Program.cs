@@ -1,6 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace Iready
 {
@@ -17,6 +18,8 @@ namespace Iready
                 Flags = ContextFlags.ForwardCompatible
             };
 
+            GLFW.Init();
+            GLFW.WindowHint(WindowHintBool.Resizable, false);
             using Iready window = new(GameWindowSettings.Default, nativeWindowSettings);
             window.Run();
         }

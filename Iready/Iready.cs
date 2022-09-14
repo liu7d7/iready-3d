@@ -1,12 +1,18 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using System.Drawing;
+using System.Media;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using Iready.Engine;
 using Iready.Game.Components;
 using Iready.Shared;
 using Iready.Shared.Components;
+using NAudio.Vorbis;
+using NAudio.Wave;
+using NVorbis;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using Font = Iready.Engine.Font;
 
 namespace Iready
 {
@@ -16,7 +22,7 @@ namespace Iready
         private readonly List<IreadyObj> _stars = new();
         private readonly List<IreadyObj> _hurdles = new();
         public static IreadyObj Player;
-        public static int Ticks;
+        private static int _ticks;
         public static int Score;
 
         public static Iready Instance;
@@ -28,9 +34,9 @@ namespace Iready
             {
                 _lane[i] = new IreadyObj();
                 _lane[i].Add(new FloatPos());
-                var i1 = i;
+                int i1 = i;
                 _lane[i].Add(new Model3d.Component(
-                    Model3d.Read("lane", Maps.Create<string, uint>(new("Material", 0xff4dabfb), new("Material.001", 0xff4dabfb), new("Material.002", 0xff93daff))),
+                    Model3d.Read("lane", Maps.Create(new KeyValuePair<string, uint>("Material", 0xff4dabfb), new KeyValuePair<string, uint>("Material.001", 0xff4dabfb), new KeyValuePair<string, uint>("Material.002", 0xff93daff))),
                     _ =>
                     {
                         RenderSystem.Push();
@@ -53,22 +59,44 @@ namespace Iready
 
             GL.ClearColor(0f, 0f, 0f, 0f);
             GL.DepthFunc(DepthFunction.Lequal);
-            GLFW.SwapInterval(0);
-            GLFW.WindowHint(WindowHintBool.Resizable, false);
             RenderSystem.UpdateProjection();
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
             Ticker.Init();
+
+            Thread thread = new(() =>
+            {
+                using VorbisWaveReader vorbisStream = new("Resource/Music/gsprintaudio.ogg");
+                WaveOutEvent waveOut = new();
+                LoopStream loop = new(vorbisStream);
+                waveOut.Init(loop);
+                waveOut.Play();
+                unsafe
+                {
+                    while (!GLFW.WindowShouldClose(WindowPtr))
+                    {
+                        Thread.Sleep(100);
+                    }
+                    waveOut.Dispose();
+                }
+            });
+            thread.Start();
         }
 
         protected override void OnResize(ResizeEventArgs e)
         {
             base.OnResize(e);
+            
+            if (e.Size == Vector2i.Zero)
+                return;
 
             RenderSystem.UpdateProjection();
+            GL.Viewport(new Rectangle(0, 0, Size.X, Size.Y));
             Fbo.Resize(Size.X, Size.Y);
         }
+
+        private bool _pixelated = true;
 
         protected override void OnRenderFrame(FrameEventArgs args)
         {
@@ -111,19 +139,29 @@ namespace Iready
             RenderSystem.LINE.End();
             RenderSystem.LINE.Render();
             Texture.Unbind();
-            
+
             RenderSystem.UpdateLookAt(Player, false);
+            
+            Fbo.Unbind();
+            
+            if (_pixelated)
+            {
+                RenderSystem.RenderPixelation();
+            }
+            else
+            {
+                RenderSystem.FRAME.Blit();
+            }
+
             RenderSystem.RenderingRed = true;
             RenderSystem.FONT.Bind();
             RenderSystem.MESH.Begin();
-            RenderSystem.FONT.Draw(RenderSystem.MESH, Score.ToString(), 3 - Size.X / 2f, -3 + Size.Y / 2f, 0xffffffff, true, 1.5f);
+            RenderSystem.FONT.Draw(RenderSystem.MESH, Score.ToString(), 3 - Size.X / 2f, Size.Y / 2f, 0xffffffff, true, 2f);
             RenderSystem.MESH.End();
             RenderSystem.MESH.Render();
             Font.Unbind();
             RenderSystem.RenderingRed = false;
-
-            RenderSystem.FRAME.Blit();
-
+            
             SwapBuffers();
         }
 
@@ -131,51 +169,27 @@ namespace Iready
         {
             FloatPos pos = Player.Get<FloatPos>();
             Mesh mesh = RenderSystem.MESH;
-            RenderSystem.Push();
-            RenderSystem.Model.Scale(3);
-            RenderSystem.Model.Rotate(45, Vector3.UnitZ);
-            for (int i = 0; i < 3; i++)
+
+            void RenderOne(float scale)
             {
-                float x = i * Size.X - Size.X + MathHelper.Lerp(pos.PrevX, pos.X, Ticker.TickDelta) % (Size.X);
-                float y = 0;
-                mesh.Quad(
-                    mesh.Float3(RenderSystem.Model, x - Size.X / 2f, y - Size.Y / 2f, 0).Float3(0, 0, 1).Float2(0, 0).Float4(0xffffffff).Next(),
-                    mesh.Float3(RenderSystem.Model, x + Size.X / 2f, y - Size.Y / 2f, 0).Float3(0, 0, 1).Float2(1, 0).Float4(0xffffffff).Next(),
-                    mesh.Float3(RenderSystem.Model, x + Size.X / 2f, y + Size.Y / 2f, 0).Float3(0, 0, 1).Float2(1, 1).Float4(0xffffffff).Next(),
-                    mesh.Float3(RenderSystem.Model, x - Size.X / 2f, y + Size.Y / 2f, 0).Float3(0, 0, 1).Float2(0, 1).Float4(0xffffffff).Next()
-                );
+                RenderSystem.Push();
+                RenderSystem.Model.Scale(scale);
+                RenderSystem.Model.Rotate(45, Vector3.UnitZ);
+                for (int i = 0; i < 3; i++)
+                {
+                    float x = i * Size.X - Size.X + MathHelper.Lerp(pos.PrevX, pos.X, Ticker.TickDelta) % (Size.X);
+                    mesh.Quad(
+                        mesh.Float3(RenderSystem.Model, x - Size.X / 2f, -Size.Y / 2f, 0).Float3(0, 0, 1).Float2(0, 0).Float4(0xffffffff).Next(),
+                        mesh.Float3(RenderSystem.Model, x + Size.X / 2f, -Size.Y / 2f, 0).Float3(0, 0, 1).Float2(1, 0).Float4(0xffffffff).Next(),
+                        mesh.Float3(RenderSystem.Model, x + Size.X / 2f, Size.Y / 2f, 0).Float3(0, 0, 1).Float2(1, 1).Float4(0xffffffff).Next(),
+                        mesh.Float3(RenderSystem.Model, x - Size.X / 2f, Size.Y / 2f, 0).Float3(0, 0, 1).Float2(0, 1).Float4(0xffffffff).Next()
+                    );
+                }
+                RenderSystem.Pop();
             }
-            RenderSystem.Pop();
-            RenderSystem.Push();
-            RenderSystem.Model.Scale(4.5f);
-            RenderSystem.Model.Rotate(45, Vector3.UnitZ);
-            for (int i = 0; i < 3; i++)
-            {
-                float x = i * Size.X - Size.X + MathHelper.Lerp(pos.PrevX, pos.X, Ticker.TickDelta) % (Size.X);
-                float y = 0;
-                mesh.Quad(
-                    mesh.Float3(RenderSystem.Model, x - Size.X / 2f, y - Size.Y / 2f, 0).Float3(0, 0, 1).Float2(0, 0).Float4(0xffffffff).Next(),
-                    mesh.Float3(RenderSystem.Model, x + Size.X / 2f, y - Size.Y / 2f, 0).Float3(0, 0, 1).Float2(1, 0).Float4(0xffffffff).Next(),
-                    mesh.Float3(RenderSystem.Model, x + Size.X / 2f, y + Size.Y / 2f, 0).Float3(0, 0, 1).Float2(1, 1).Float4(0xffffffff).Next(),
-                    mesh.Float3(RenderSystem.Model, x - Size.X / 2f, y + Size.Y / 2f, 0).Float3(0, 0, 1).Float2(0, 1).Float4(0xffffffff).Next()
-                );
-            }
-            RenderSystem.Pop();
-            RenderSystem.Push();
-            RenderSystem.Model.Scale(6);
-            RenderSystem.Model.Rotate(45, Vector3.UnitZ);
-            for (int i = 0; i < 3; i++)
-            {
-                float x = i * Size.X - Size.X + MathHelper.Lerp(pos.PrevX, pos.X, Ticker.TickDelta) % (Size.X);
-                float y = 0;
-                mesh.Quad(
-                    mesh.Float3(RenderSystem.Model, x - Size.X / 2f, y - Size.Y / 2f, 0).Float3(0, 0, 1).Float2(0, 0).Float4(0xffffffff).Next(),
-                    mesh.Float3(RenderSystem.Model, x + Size.X / 2f, y - Size.Y / 2f, 0).Float3(0, 0, 1).Float2(1, 0).Float4(0xffffffff).Next(),
-                    mesh.Float3(RenderSystem.Model, x + Size.X / 2f, y + Size.Y / 2f, 0).Float3(0, 0, 1).Float2(1, 1).Float4(0xffffffff).Next(),
-                    mesh.Float3(RenderSystem.Model, x - Size.X / 2f, y + Size.Y / 2f, 0).Float3(0, 0, 1).Float2(0, 1).Float4(0xffffffff).Next()
-                );
-            }
-            RenderSystem.Pop();
+            RenderOne(3);
+            RenderOne(4.5f);
+            RenderOne(6);
         }
         
         protected override void OnUpdateFrame(FrameEventArgs args)
@@ -188,10 +202,10 @@ namespace Iready
 
             for (int j = 0; j < Math.Min(10, i); j++)
             {
-                Ticks++;
+                _ticks++;
 
                 Player.Update();
-                if (Ticks % 5 == 0)
+                if (_ticks % 5 == 0)
                 {
                     for (int k = 0; k < 3; k++)
                     {
@@ -199,7 +213,7 @@ namespace Iready
                         {
                             IreadyObj star = new();
                             star.Add(new Tag(k));
-                            star.Add(new FloatPos { X = -Ticks - 15, Z = k * 5 - 5, Y = 1 });
+                            star.Add(new FloatPos { X = -_ticks - 15, Z = k * 5 - 5, Y = 1 });
                             star.Get<FloatPos>().SetPrev();
                             star.Add(new Star());
                             _stars.Add(star);
@@ -208,7 +222,7 @@ namespace Iready
                         {
                             IreadyObj hurdle = new();
                             hurdle.Add(new Tag(k));
-                            hurdle.Add(new FloatPos { X = -Ticks - 15, Z = k * 5 - 5, Y = 1 });
+                            hurdle.Add(new FloatPos { X = -_ticks - 15, Z = k * 5 - 5, Y = 1 });
                             hurdle.Get<FloatPos>().SetPrev();
                             hurdle.Add(new Hurdle());
                             _hurdles.Add(hurdle);
@@ -246,14 +260,18 @@ namespace Iready
             Player player = Player.Get<Player>();
             switch (e.Key)
             {
-                case Keys.Up:
+                case Keys.Left:
                     player.MoveTo(player.Lane + 1);
                     break;
-                case Keys.Down:
+                case Keys.Right:
                     player.MoveTo(player.Lane - 1);
                     break;
                 case Keys.Space:
+                case Keys.Up:
                     Player.Get<Player>().Jump();
+                    break;
+                case Keys.P:
+                    _pixelated = !_pixelated;
                     break;
             }
         }
